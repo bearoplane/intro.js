@@ -83,6 +83,10 @@
         if (typeof(currentItem.element) === 'string') {
           //grab the element with given selector from the page
           currentItem.element = document.querySelector(currentItem.element);
+
+          // For SVG elements, we create a dummy div to sit in
+          if (currentItem.element instanceof SVGElement)
+            _makeDummyElement.call(currentItem);
         }
 
         if (currentItem.element != null) {
@@ -207,6 +211,33 @@
       }
     }
     return false;
+  }
+
+  
+ /*
+   * makes a dummy div for SVG elements 
+   * @api private
+   * @method _makeDummyElement
+  */
+  function _makeDummyElement() {
+    if (!this.element instanceof SVGElement) return false;
+
+    var svgClientRect = this.element.getBoundingClientRect(),
+      svgNode = this.element.cloneNode(true),
+      dummy = document.createElement('div');
+
+    dummy.className = 'dummyElement';
+
+    dummy.style.width = svgClientRect.width + 'px';
+    dummy.style.height = svgClientRect.height + 'px';
+    dummy.style.left = svgClientRect.left + 'px';
+    dummy.style.top = svgClientRect.top + 'px';
+
+    dummy.appendChild(svgNode);
+
+    document.body.appendChild(dummy);
+
+    this.element = dummy;
   }
 
  /*
@@ -379,14 +410,14 @@
         arrowLayer.className = 'introjs-arrow bottom';
         break;
       case 'right':
-        tooltipLayer.style.left = (_getOffset(targetElement).width + 20) + 'px';
+        tooltipLayer.style.left = (_getOffset(targetElement).width + 30) + 'px';
         arrowLayer.className = 'introjs-arrow left';
         break;
       case 'left':
         if (this._options.showStepNumbers == true) {  
           tooltipLayer.style.top = '15px';
         }
-        tooltipLayer.style.right = (_getOffset(targetElement).width + 20) + 'px';
+        tooltipLayer.style.right = (_getOffset(targetElement).width + 30) + 'px';
         arrowLayer.className = 'introjs-arrow right';
         break;
       case 'bottom':
@@ -411,6 +442,7 @@
       if (!this._introItems[this._currentStep]) return;
 
       var elementPosition = _getOffset(this._introItems[this._currentStep].element);
+
       //set new position to helper layer
       helperLayer.setAttribute('style', 'width: ' + (elementPosition.width  + 10)  + 'px; ' +
                                         'height:' + (elementPosition.height + 10)  + 'px; ' +

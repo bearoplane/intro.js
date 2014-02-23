@@ -246,3 +246,14 @@
 .introjs-bullets ul li a.active {
   background: #999;
 }
+
+.dummyElement {
+  visibility: hidden;
+  position: absolute;
+}
+  .dummyElement > * {
+    position: absolute;
+  }
+.dummyElement.introjs-showElement {
+  visibility: visible;
+}
